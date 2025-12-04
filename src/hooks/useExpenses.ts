@@ -41,8 +41,10 @@ const fetchExpensesData = async () => {
 
   let teamMembers: TeamMember[] = [];
   if (profilesData && expensesData) {
+    // Only include team expenses for team member calculations
+    const teamExpenses = expensesData.filter((e) => e.category === "Team");
     const memberTotals = profilesData.map((profile) => {
-      const total = expensesData
+      const total = teamExpenses
         .filter((e) => e.user_id === profile.id)
         .reduce((sum, e) => sum + Number(e.amount), 0);
       return { id: profile.id, full_name: profile.full_name, total };

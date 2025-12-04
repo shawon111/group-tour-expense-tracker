@@ -15,7 +15,7 @@ const expenseSchema = z.object({
   category: z.string().min(1, "Please select a category"),
 });
 
-const CATEGORIES = ["Food", "Transport", "Accommodation", "Shopping", "Entertainment", "General"];
+const CATEGORIES = ["Personal", "Team"];
 
 interface ExpenseFormProps {
   expense: Expense | null;
@@ -27,7 +27,7 @@ interface ExpenseFormProps {
 const ExpenseForm = ({ expense, userId, onSuccess, onCancel }: ExpenseFormProps) => {
   const [description, setDescription] = useState(expense?.description || "");
   const [amount, setAmount] = useState(expense?.amount?.toString() || "");
-  const [category, setCategory] = useState(expense?.category || "General");
+  const [category, setCategory] = useState(expense?.category || "Personal");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

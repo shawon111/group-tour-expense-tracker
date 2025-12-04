@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useExpenses, useDeleteExpense, useInvalidateExpenses, Expense, TeamMember } from "@/hooks/useExpenses";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { LogOut, Plus, Wallet, Users, TrendingUp } from "lucide-react";
+import { LogOut, Plus, Wallet, Users, TrendingUp, DollarSign } from "lucide-react";
 import ExpenseForm from "@/components/ExpenseForm";
 import ExpenseTable from "@/components/ExpenseTable";
 import TeamOverview from "@/components/TeamOverview";
@@ -57,8 +57,16 @@ const Dashboard = () => {
   };
 
   const myExpenses = expenses.filter((e) => e.user_id === user?.id);
-  const myTotal = myExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
-  const teamTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  const myPersonalExpenses = myExpenses.filter((e) => e.category === "Personal");
+  const myPersonalTotal = myPersonalExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  
+  const teamExpenses = expenses.filter((e) => e.category === "Team");
+  const teamTotal = teamExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  
+  const myTeamExpenses = teamExpenses.filter((e) => e.user_id === user?.id);
+  const myContribution = myTeamExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  
+  const myTotalSpent = myPersonalTotal + myContribution;
 
   if (loading || isLoading) {
     return (
@@ -90,24 +98,34 @@ const Dashboard = () => {
 
       <main className="px-4 py-6 space-y-6 max-w-7xl mx-auto">
         {/* Stats Cards - Full Width */}
-        <div className="animate-fade-in grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="stat-card p-5 flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Wallet className="w-7 h-7 text-primary" />
+              <DollarSign className="w-7 h-7 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">৳{myTotal.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">My Spending</p>
+              <p className="text-2xl font-bold text-foreground">৳{myTotalSpent.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Spent</p>
             </div>
           </div>
 
           <div className="stat-card p-5 flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
-              <Users className="w-7 h-7 text-accent" />
+              <Wallet className="w-7 h-7 text-accent" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">৳{myPersonalTotal.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Personal</p>
+            </div>
+          </div>
+
+          <div className="stat-card p-5 flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center">
+              <Users className="w-7 h-7 text-secondary-foreground" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">৳{teamTotal.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">Team Total</p>
+              <p className="text-sm text-muted-foreground">Team Pool</p>
             </div>
           </div>
 
@@ -116,14 +134,14 @@ const Dashboard = () => {
               <TrendingUp className="w-7 h-7 text-secondary-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{myExpenses.length}</p>
-              <p className="text-sm text-muted-foreground">Transactions</p>
+              <p className="text-2xl font-bold text-foreground">৳{myContribution.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">My Share</p>
             </div>
           </div>
         </div>
 
         {/* Team Overview */}
-        {teamMembers.length > 0 && (
+        {teamMembers.length > 0 && teamTotal > 0 && (
           <TeamOverview members={teamMembers} totalSpent={teamTotal} currentUserId={user?.id || ""} />
         )}
 
